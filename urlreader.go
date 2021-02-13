@@ -61,10 +61,12 @@ func (u *URLReader) ReturnStatus(status int) *URLReader {
 	return u
 }
 
-// Open returns the body of the response as an io.ReadCloser or
-// an error if the request fails or the return http return-code is unequal http.StatusOK.
+// Open returns the body of the response as an io.ReadCloser, or nil and
+// an error if the request fails or the return HTTP status-code
+// is unequal to the expected status.
 //
-// The io.ReadCloser must be closed after the data in body has been consumed.
+// The io.ReadCloser *must* be closed after the data in body has been consumed, in order
+// to prevent leaks and/or preserve computer-resources.
 //
 // The context controls the entire lifetime of a request and its response: obtaining a
 // connection, sending the request, and reading the response headers and body.
@@ -79,9 +81,13 @@ func (u *URLReader) Open(ctx context.Context) (io.ReadCloser, error) {
 		return nil, err
 	}
 	if resp.StatusCode != u.returnStatus {
-		limit := io.LimitReader(resp.Body, 8192)
-		body, _ := ioutil.ReadAll(limit)
-		_ = resp.Body.Close()
+		lr := io.LimitReader(resp.Body, 8192)
+		body, _ := ioutil.ReadAll(lr)
+		defer func() {
+			// In case of any remaining data
+			_, _ = io.Copy(ioutil.Discard, resp.Body)
+			_ = resp.Body.Close()
+		}()
 		return nil, fmt.Errorf("%s returned status %d; error = %s", u.loc, resp.StatusCode, body)
 	}
 	return resp.Body, nil

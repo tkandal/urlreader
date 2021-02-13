@@ -10,7 +10,7 @@ The stream **must** be closed after the data has been consumed.
 
 ## Dependencies
 
-* [Go](https://golang.org/) >= 1.8
+* [Go](https://golang.org/) >= 1.15
 
 ## Example
 
@@ -34,7 +34,7 @@ type Obj struct {
 }
 
 func main() {
-    ur, err := urlreader.NewURLReader("https://...")     
+    ur, err := urlreader.NewURLReader("https://...")
     if err != nil {
         log.Fatal(err)
     }
@@ -43,7 +43,7 @@ func main() {
         log.Fatal(err)
     }
     ur.Proxy(proxyURL).Header("Accept", "application/json;version=1")
-    
+
     ctx, cancel := context.WithTimeout(context.Background(), 30 * time.Second)
     defer cancel()
     // Never ever, use nil as a context!
@@ -56,7 +56,7 @@ func main() {
         log.Fatal(err)
     }
     defer rdr.Close()
-    
+
     br := bufio.NewReaderSize(rdr, 1024*8)
     obj := make([]Obj, 0)
     if err := json.NewDecoder(br).Decode(&obj); err != nil {

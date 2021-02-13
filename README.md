@@ -7,7 +7,8 @@ Supports HTTP Basic Auth, header token and Oauth2-token.  Other headers may also
 A custom return status may be specified if a successful return status is unequal
 to the HTTP status code OK.
 
-The stream **must** be closed after the data has been consumed.
+The stream **must** be closed after the data has been consumed, in order
+to prevent leaks and/or preserve computer-resources.
 
 ## Dependencies
 

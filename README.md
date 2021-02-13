@@ -43,6 +43,8 @@ func main() {
         log.Fatal(err)
     }
     ur.Proxy(proxyURL).Header("Accept", "application/json;version=1")
+    ur.Header("Accept-Charset", "utf-8")
+    ur.Header("Cache-Control", "private, no-cache, no-store, must-revalidate, max-age=0")
 
     ctx, cancel := context.WithTimeout(context.Background(), 30 * time.Second)
     defer cancel()

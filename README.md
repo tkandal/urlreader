@@ -4,7 +4,8 @@ A simple module for opening and returning a stream from an URL.
 
 Supports HTTP Basic Auth, header token and Oauth2-token.  Other headers may also be set.
 
-A HTTP return code other than OK (200) will return an error.
+A custom return status may be specified if a successful return status is unequal
+to the HTTP status code OK.
 
 The stream **must** be closed after the data has been consumed.
 

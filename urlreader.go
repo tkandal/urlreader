@@ -54,7 +54,7 @@ func (u *URLReader) Proxy(fixedURL *url.URL) *URLReader {
 	return u
 }
 
-// ReturnStatus sets the expected return status, in case a legal return status
+// ReturnStatus sets the expected return status, in case a successful return status
 // is not HTTP status-code OK.
 func (u *URLReader) ReturnStatus(status int) *URLReader {
 	u.returnStatus = status

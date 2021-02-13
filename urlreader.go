@@ -12,9 +12,10 @@ import (
 
 // URLReader with default options
 type URLReader struct {
-	loc   string
-	req   *http.Request
-	trans *http.Transport
+	loc          string
+	returnStatus int
+	req          *http.Request
+	trans        *http.Transport
 }
 
 // NewURLReader return a new URLReader-object
@@ -23,7 +24,7 @@ func NewURLReader(loc string) (*URLReader, error) {
 	if err != nil {
 		return nil, err
 	}
-	return &URLReader{loc: loc, req: request}, nil
+	return &URLReader{loc: loc, returnStatus: http.StatusOK, req: request}, nil
 }
 
 // BasicAuth sets the basic auth header in the request
@@ -53,6 +54,13 @@ func (u *URLReader) Proxy(fixedURL *url.URL) *URLReader {
 	return u
 }
 
+// ReturnStatus sets the expected return status, in case a legal return status
+// is not HTTP status-code OK.
+func (u *URLReader) ReturnStatus(status int) *URLReader {
+	u.returnStatus = status
+	return u
+}
+
 // Open returns the body of the response as an io.ReadCloser or
 // an error if the request fails or the return http return-code is unequal http.StatusOK.
 //
@@ -70,8 +78,9 @@ func (u *URLReader) Open(ctx context.Context) (io.ReadCloser, error) {
 	if err != nil {
 		return nil, err
 	}
-	if resp.StatusCode != http.StatusOK {
-		body, _ := ioutil.ReadAll(resp.Body)
+	if resp.StatusCode != u.returnStatus {
+		limit := io.LimitReader(resp.Body, 8192)
+		body, _ := ioutil.ReadAll(limit)
 		_ = resp.Body.Close()
 		return nil, fmt.Errorf("%s returned status %d; error = %s", u.loc, resp.StatusCode, body)
 	}
